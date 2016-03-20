@@ -118,7 +118,7 @@ public class ScenarioProcessor implements Runnable  {
             log.info(String.format("Completed scenario '%s'.", scenario.getFileName()));
         }
         catch (Exception e) {
-            String errorHeader = "\n\n--[ Error ]-------------------------------\n\n";
+            String errorHeader = "\n\n--[ Error ]--------------------------------\n\n";
             String errorTrace  = "\n--[ Trace ]--------------------------------\n";
             log.severe(String.format("%sScenario '%s' failed at step [%d] with error:\n\n%s%s",
                                       errorHeader,
