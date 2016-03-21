@@ -184,15 +184,30 @@ public class ScenarioProcessor implements Runnable  {
         return (value == null || value.isEmpty());
     }
 
-    private boolean isSkippedMessage (int messageId) {
+    private boolean isSkippedByMessageID(int messageId) {
         for (Integer id :scenario.getSkippedIDs()) {
             if (id == messageId) {
+                log.info("Skip message id detected: " + messageId);
                 return true;
             }
         }
 
         return false;
     }
+
+    private boolean isSkippedByCondition(ScenarioItem scenarioItem, String jsonString) {
+        for(PathValue pathValue : scenarioItem.getSkipConditions()) {
+            String skipValue = JsonPath.parse(jsonString).read(pathValue.getPath());
+
+            if (pathValue.getValue().equals(skipValue)) {
+                log.info("Skip message condition detected: " + pathValue.getPath() + "=" + skipValue);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * @param scenarioItem
@@ -201,7 +216,8 @@ public class ScenarioProcessor implements Runnable  {
      */
     private void processScenarioItem(ScenarioItem scenarioItem)
             throws IOException, ScenarioException {
-        // Request sending
+
+        // ------- Send request -------
         if(!isNullOrEmpty(scenarioItem.getRequestBody())) {
             // replace placeholders if any
             Map<String, Object> defines = scenario.getDefines().export();
@@ -214,7 +230,7 @@ public class ScenarioProcessor implements Runnable  {
             sendData (socket, body);
         }
 
-        // receive response
+        // ------- Receive response -------
         String response;
         int responseId;
         boolean isSkipped;
@@ -222,7 +238,7 @@ public class ScenarioProcessor implements Runnable  {
         do {
             response   = readData(socket);
             responseId = getResponseID(response);
-            isSkipped  = isSkippedMessage(responseId);
+            isSkipped  = isSkippedByMessageID(responseId);
 
             log.info("[ Message received ] " + response);
             log.info("[ Response ID ] " + responseId);
@@ -232,7 +248,12 @@ public class ScenarioProcessor implements Runnable  {
             }
         } while(isSkipped);
 
-        // Response handling
+        // ------- Response handling -------
+
+        // Check message skip conditions
+        if (isSkippedByCondition(scenarioItem, response)) {
+            log.info("Skipped by message skip condition");
+        }
 
         // Check response ID
         if (scenarioItem.getResponseId() > 0) {
