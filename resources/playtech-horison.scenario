@@ -8,14 +8,14 @@
 # {                                     - scenario item start
 # $> 345                                - expected message id
 # <= {"key1":"value1","key3":"value3"}  - send json data (can contains ${name} place holders)
-# => <json-path-1>=value1               - verified json values in received json data
-# => <json-path-2>=value2
+# => <json-path-1>=value-1              - verified json values in received json data
+# => <json-path-2>=value-2
 #       ...
-# +> key1=<json-path-1>                 - add to scenario defines key/value pairs from received data
-# +> key2=<json-path-2>
+# +> key-1=<json-path-1>                - add to scenario defines key/value pairs from received data
+# +> key-2=<json-path-2>
 #       ...
-# ?> <json-path-1> = value1             - skip message conditions, message will be skipped if one of them is true
-# ?> <json-path-2> = value2
+# ?> <json-path-1> = value-1            - skip message conditions, message will be skipped if one of them is true
+# ?> <json-path-2> = value-2
 #       ...
 # }                                     - scenario item end
 #       ...
