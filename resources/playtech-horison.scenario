@@ -6,7 +6,7 @@
 # *> key2=value2
 #       ...
 # {                                     - scenario item start
-# $> 345                                - expected message id
+# $> 345                                - expected message id (not checked if less than zero value defined)
 # <= {"key1":"value1","key3":"value3"}  - send json data (can contains ${name} place holders)
 # => <json-path-1>=value-1              - verified json values in received json data
 # => <json-path-2>=value-2
