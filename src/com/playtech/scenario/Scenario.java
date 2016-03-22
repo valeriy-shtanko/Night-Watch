@@ -170,15 +170,15 @@ public class Scenario {
     }
 
     private PathValue processPathValue(String line) {
-        String[] items = StringUtils.split(line, "=");
+        String[] items = split(line, "=");
 
-        return new PathValue(items[0].trim(), concat(items, 1).trim());
+        return new PathValue(items[0].trim(), items[1].trim());
     }
 
     private ImportedValue processImportedValue(String line){
-        String[] items = StringUtils.split(line, "=");
+        String[] items = split(line, "=");
 
-        return new ImportedValue(items[0].trim(), concat(items, 1).trim());
+        return new ImportedValue(items[0].trim(), items[1].trim());
     }
 
     private void processSkippedIDs(String line) {
@@ -229,17 +229,8 @@ public class Scenario {
         scenarioDefines.setStringAsConstant(items[0].trim(), items[1].trim());
     }
 
-    private String concat(String[] items, int startIndex) {
-        String result = "";
-
-        for(int i = startIndex; i < items.length; i++) {
-            if(i > startIndex) {
-                result = result + "=";
-            }
-
-            result = result + items[i];
-        }
-
-        return result;
+    private String[] split(String value, String splitBy) {
+        return value.split(splitBy, 2);
     }
+
 }
