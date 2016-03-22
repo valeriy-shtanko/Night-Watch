@@ -137,7 +137,7 @@ public class Scenario {
 
                 if(line.startsWith(CHECKED_VALUE_PREFIX)) {
                     scenarioItem.getCheckedValues()
-                                .add(processCheckedValue(removePrefix(line)));
+                                .add(processPathValue(removePrefix(line)));
                     continue;
                 }
 
@@ -149,7 +149,7 @@ public class Scenario {
 
                 if(line.startsWith(SKIP_CONDITION_PREFIX)){
                     scenarioItem.getSkipConditions()
-                                .add(processSkipCondition(removePrefix(line)));
+                                .add(processPathValue(removePrefix(line)));
                     continue;
                 }
                 
@@ -169,25 +169,17 @@ public class Scenario {
         return this;
     }
 
-    private PathValue processCheckedValue(String line) {
+    private PathValue processPathValue(String line) {
         String[] items = StringUtils.split(line, "=");
 
-        return new PathValue(items[0].trim(), items[1].trim());
+        return new PathValue(items[0].trim(), concat(items, 1).trim());
     }
 
     private ImportedValue processImportedValue(String line){
         String[] items = StringUtils.split(line, "=");
 
-        return new ImportedValue(items[0].trim(), items[1].trim());
+        return new ImportedValue(items[0].trim(), concat(items, 1).trim());
     }
-
-    private PathValue processSkipCondition(String line){
-        String[] items = StringUtils.split(line, "=");
-
-        return new PathValue(items[0].trim(), items[1].trim());
-    }
-
-
 
     private void processSkippedIDs(String line) {
         String[] IDs = StringUtils.split(line, ",");
@@ -235,5 +227,19 @@ public class Scenario {
         String[] items = StringUtils.split(line, "=");
 
         scenarioDefines.setStringAsConstant(items[0].trim(), items[1].trim());
+    }
+
+    private String concat(String[] items, int startIndex) {
+        String result = "";
+
+        for(int i = startIndex; i < items.length; i++) {
+            if(i > startIndex) {
+                result = result + "=";
+            }
+
+            result = result + items[i];
+        }
+
+        return result;
     }
 }

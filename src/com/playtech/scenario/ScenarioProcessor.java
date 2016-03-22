@@ -16,7 +16,6 @@ import com.playtech.environment.EnvironmentConfig;
 import com.playtech.common.Defines;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
@@ -169,9 +168,17 @@ public class ScenarioProcessor implements Runnable  {
         return data;
     }
 
-    private int getResponseID(String response){
-        JSONObject jsonObject = new JSONObject(response);
-        return jsonObject.getInt("ID");
+    private int getResponseID(String response) throws ScenarioException {
+        int result;
+
+        try {
+            result = JsonPath.parse(response).read("$.ID");
+        }
+        catch(Exception e) {
+            throw new ScenarioException("Cannot determine response message ID", e);
+        }
+
+        return result;
     }
 
     /**
