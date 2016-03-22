@@ -126,15 +126,15 @@ public class EnvironmentConfig {
         properties.load(new FileInputStream(fileName));
 
         //  Setting configuration setting/parameters from the configuration for the environment file
-        host         = properties.getProperty(Defines.HOST).trim();
-        port         = Integer.parseInt(properties.getProperty(Defines.PORT).trim());
+        host         = properties.getProperty(Defines.HOST, "").trim();
+        port         = Integer.parseInt(properties.getProperty(Defines.PORT, "0").trim());
         casinoName   = properties.getProperty(Defines.CASINO_NAME).trim();
-        useSSL       = Boolean.parseBoolean(properties.getProperty(Defines.USE_SSL).trim());
-        timeout      = Integer.parseInt(properties.getProperty(Defines.TIMEOUT).trim());
-        userName     = properties.getProperty(Defines.USER_NAME).trim();
-        userPassword = properties.getProperty(Defines.USER_PASSWORD).trim();
-        clientSkin   = properties.getProperty(Defines.CLIENT_SKIN).trim();
-        scenarioFile = properties.getProperty(Defines.SCENARIO_FILE).trim();
+        useSSL       = Boolean.parseBoolean(properties.getProperty(Defines.USE_SSL, "false").trim());
+        timeout      = Integer.parseInt(properties.getProperty(Defines.TIMEOUT, "1000").trim());
+        userName     = properties.getProperty(Defines.USER_NAME, "").trim();
+        userPassword = properties.getProperty(Defines.USER_PASSWORD, "").trim();
+        clientSkin   = properties.getProperty(Defines.CLIENT_SKIN, "").trim();
+        scenarioFile = properties.getProperty(Defines.SCENARIO_FILE, "").trim();
 
         return this;
     }
