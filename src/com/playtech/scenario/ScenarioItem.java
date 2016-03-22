@@ -12,27 +12,32 @@ import java.util.List;
  *      {                                     - scenario item start
  *      $> 345                                - expected message id (if less than 0 it means not checked)
  *      <= {"key1":"value1","key3":"value3"}  - send json data (can contains ${name} place holders)
- *      => <json-path-1> = value1             - verified json values in received json data
+ *      => <json-path-1> = value1             - verify json values in received json data
  *      => <json-path-2> = value2
  *              ...
- *      +> key1=<json-path-1>                 - added to scenario defines key/value pairs from received data
+ *      +> key1=<json-path-1>                 - add to scenario defines key/value pairs from received data
  *      +> key2=<json-path-2>
+ *              ...
+ *      ?> <json-path-1> = value1             - skip message conditions, message will be skipped if one of them is true
+ *      ?> <json-path-2> = value2
  *              ...
  *      }                                     - scenario item end
  *      ...
  */
 public class ScenarioItem {
-    private int responseId;
+    private int    responseId;
     private String requestBody;
 
-    List<CheckedValue> checkedValues;
+    List<PathValue>  checkedValues;
     List<ImportedValue> importedValues;
+    List<PathValue>     skipConditions;
 
     public ScenarioItem() {
-        checkedValues = new ArrayList<>();
+        checkedValues  = new ArrayList<>();
         importedValues = new ArrayList<>();
+        skipConditions = new ArrayList<>();
 
-        responseId = 1;
+        responseId = -1;
     }
 
     public int getResponseId() {
@@ -51,11 +56,11 @@ public class ScenarioItem {
         this.requestBody = requestBody;
     }
 
-    public List<CheckedValue> getCheckedValues() {
+    public List<PathValue> getCheckedValues() {
         return checkedValues;
     }
 
-    public void setCheckedValues(List<CheckedValue> checkedValues) {
+    public void setCheckedValues(List<PathValue> checkedValues) {
         this.checkedValues = checkedValues;
     }
 
@@ -65,5 +70,13 @@ public class ScenarioItem {
 
     public void setImportedValues(List<ImportedValue> importedValues) {
         this.importedValues = importedValues;
+    }
+
+    public List<PathValue> getSkipConditions() {
+        return skipConditions;
+    }
+
+    public void setSkipConditions(List<PathValue> skipConditions) {
+        this.skipConditions = skipConditions;
     }
 }

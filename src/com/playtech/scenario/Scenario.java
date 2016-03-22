@@ -39,6 +39,7 @@ public class Scenario {
     public static final String REQUEST_PREFIX        = "<=";
     public static final String CHECKED_VALUE_PREFIX  = "=>";
     public static final String IMPORTED_VALUE_PREFIX = "+>";
+    public static final String SKIP_CONDITION_PREFIX = "?>";
     public static final String START_ITEM_PREFIX     = "{";
     public static final String END_ITEM_PREFIX       = "}";
 
@@ -81,6 +82,9 @@ public class Scenario {
      *              ...
      *      +> key1=<json-path-1>                 - added to scenario defines key/value pairs from received data
      *      +> key2=<json-path-2>
+     *              ...
+     *      ?> <json-path-1> = value1             - skip message conditions, message will be skipped if one of them is true
+     *      ?> <json-path-2> = value2
      *              ...
      *      }                                     - scenario item end
      *      ...
@@ -133,7 +137,7 @@ public class Scenario {
 
                 if(line.startsWith(CHECKED_VALUE_PREFIX)) {
                     scenarioItem.getCheckedValues()
-                                .add(processCheckedValue(removePrefix(line)));
+                                .add(processPathValue(removePrefix(line)));
                     continue;
                 }
 
@@ -143,6 +147,12 @@ public class Scenario {
                     continue;
                 }
 
+                if(line.startsWith(SKIP_CONDITION_PREFIX)){
+                    scenarioItem.getSkipConditions()
+                                .add(processPathValue(removePrefix(line)));
+                    continue;
+                }
+                
                 if(line.startsWith(END_ITEM_PREFIX)){
                     scenarioItems.add(scenarioItem);
                     scenarioItem = null;
@@ -159,18 +169,17 @@ public class Scenario {
         return this;
     }
 
-    private CheckedValue processCheckedValue(String line) {
-        String[] items = StringUtils.split(line, "=");
+    private PathValue processPathValue(String line) {
+        String[] items = split(line, "=");
 
-        return new CheckedValue(items[0].trim(), items[1].trim());
+        return new PathValue(items[0].trim(), items[1].trim());
     }
 
     private ImportedValue processImportedValue(String line){
-        String[] items = StringUtils.split(line, "=");
+        String[] items = split(line, "=");
 
         return new ImportedValue(items[0].trim(), items[1].trim());
     }
-
 
     private void processSkippedIDs(String line) {
         String[] IDs = StringUtils.split(line, ",");
@@ -219,4 +228,9 @@ public class Scenario {
 
         scenarioDefines.setStringAsConstant(items[0].trim(), items[1].trim());
     }
+
+    private String[] split(String value, String splitBy) {
+        return value.split(splitBy, 2);
+    }
+
 }

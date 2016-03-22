@@ -6,13 +6,16 @@
 # *> key2=value2
 #       ...
 # {                                     - scenario item start
-# $> 345                                - expected message id
+# $> 345                                - expected message id (not checked if less than zero value defined)
 # <= {"key1":"value1","key3":"value3"}  - send json data (can contains ${name} place holders)
-# => <json-path-1>=value1               - verified json values in received json data
-# => <json-path-2>=value2
+# => <json-path-1>=value-1              - verified json values in received json data
+# => <json-path-2>=value-2
 #       ...
-#   +> key1=<json-path-1>                 - added to scenario defines key/value pairs from received data
-#   +> key2=<json-path-2>
+# +> key-1=<json-path-1>                - add to scenario defines key/value pairs from received data
+# +> key-2=<json-path-2>
+#       ...
+# ?> <json-path-1> = value-1            - skip message conditions, message will be skipped if one of them is true
+# ?> <json-path-2> = value-2
 #       ...
 # }                                     - scenario item end
 #       ...
@@ -22,5 +25,5 @@
 {
 $> 31032
 <= {"ID":31031,"windowId":"native_common","urlTypeList":["native_cashier","native_registration","native_login","native_cdn","native_deposit","native_transactions","native_withdraw","native_game_order","native_promotions","native_forgot_password","native_faq","native_uk_regulations","native_responsible_gaming","native_update","native_force_update","native_app_store_version","native_timeout","native_selfexclusion"],"casinoName":"playtechhorizon","clientSkin":"playtechhorizon","clientPlatform":"mobile","clientType":"casino"}
-=> $.data.urlList[0].url=http://m.playtechhorizon.com/payment/deposit/?username\u003d{username}\u0026tempToken\u003d{temptoken}\u0026wrapper\u003d1\u0026header\u003d0
+=> $.data.urlList[0].url=http://m.playtechhorizon.com/payment/deposit/?username={username}&tempToken={temptoken}&wrapper=1&header=0
 }

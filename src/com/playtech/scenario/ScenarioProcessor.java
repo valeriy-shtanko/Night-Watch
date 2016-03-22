@@ -16,7 +16,6 @@ import com.playtech.environment.EnvironmentConfig;
 import com.playtech.common.Defines;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
@@ -118,10 +117,13 @@ public class ScenarioProcessor implements Runnable  {
             log.info(String.format("Completed scenario '%s'.", scenario.getFileName()));
         }
         catch (Exception e) {
-            log.severe(String.format("\n----------------------------\nScenario '%s' failed at step [%d] with error:\n\n%s",
+            String errorHeader = "\n\n--[ Error ]--------------------------------\n\n";
+            String errorTrace  = "\n--[ Trace ]--------------------------------\n";
+            log.severe(String.format("%sScenario '%s' failed at step [%d] with error:\n\n%s%s",
+                                      errorHeader,
                                       config.getScenarioFile(),
                                       stepNumber,
-                                      e.getMessage()));
+                                      e.getMessage(),errorTrace));
 
             e.printStackTrace(); //TODO: print stack trace with logger
         }
@@ -166,9 +168,17 @@ public class ScenarioProcessor implements Runnable  {
         return data;
     }
 
-    private int getResponseID(String response){
-        JSONObject jsonObject = new JSONObject(response);
-        return jsonObject.getInt("ID");
+    private int getResponseID(String response) throws ScenarioException {
+        int result;
+
+        try {
+            result = JsonPath.parse(response).read("$.ID");
+        }
+        catch(Exception e) {
+            throw new ScenarioException("Cannot determine response message ID", e);
+        }
+
+        return result;
     }
 
     /**
@@ -181,15 +191,30 @@ public class ScenarioProcessor implements Runnable  {
         return (value == null || value.isEmpty());
     }
 
-    private boolean isSkippedMessage (int messageId) {
+    private boolean isSkippedByMessageID(int messageId) {
         for (Integer id :scenario.getSkippedIDs()) {
             if (id == messageId) {
+                log.info("Skip message id detected: " + messageId);
                 return true;
             }
         }
 
         return false;
     }
+
+    private boolean isSkippedByCondition(ScenarioItem scenarioItem, String jsonString) {
+        for(PathValue pathValue : scenarioItem.getSkipConditions()) {
+            String skipValue = JsonPath.parse(jsonString).read(pathValue.getPath());
+
+            if (pathValue.getValue().equals(skipValue)) {
+                log.info("Skip message condition detected: " + pathValue.getPath() + "=" + skipValue);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * @param scenarioItem
@@ -198,7 +223,8 @@ public class ScenarioProcessor implements Runnable  {
      */
     private void processScenarioItem(ScenarioItem scenarioItem)
             throws IOException, ScenarioException {
-        // Request sending
+
+        // ------- Send request -------
         if(!isNullOrEmpty(scenarioItem.getRequestBody())) {
             // replace placeholders if any
             Map<String, Object> defines = scenario.getDefines().export();
@@ -211,7 +237,7 @@ public class ScenarioProcessor implements Runnable  {
             sendData (socket, body);
         }
 
-        // receive response
+        // ------- Receive response -------
         String response;
         int responseId;
         boolean isSkipped;
@@ -219,7 +245,7 @@ public class ScenarioProcessor implements Runnable  {
         do {
             response   = readData(socket);
             responseId = getResponseID(response);
-            isSkipped  = isSkippedMessage(responseId);
+            isSkipped  = isSkippedByMessageID(responseId);
 
             log.info("[ Message received ] " + response);
             log.info("[ Response ID ] " + responseId);
@@ -229,7 +255,12 @@ public class ScenarioProcessor implements Runnable  {
             }
         } while(isSkipped);
 
-        // Response handling
+        // ------- Response handling -------
+
+        // Check message skip conditions
+        if (isSkippedByCondition(scenarioItem, response)) {
+            log.info("Skipped by message skip condition");
+        }
 
         // Check response ID
         if (scenarioItem.getResponseId() > 0) {
@@ -241,7 +272,7 @@ public class ScenarioProcessor implements Runnable  {
         }
 
         // Process checked values
-        for(CheckedValue item : scenarioItem.getCheckedValues()) {
+        for(PathValue item : scenarioItem.getCheckedValues()) {
             String jsonValue = JsonPath.parse(response).read(item.getPath());
 
             if (!item.getValue().equals(jsonValue)) {
