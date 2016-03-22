@@ -28,7 +28,7 @@ public class ScenarioItem {
     private int    responseId;
     private String requestBody;
 
-    List<CheckedValue>  checkedValues;
+    List<PathValue>  checkedValues;
     List<ImportedValue> importedValues;
     List<PathValue>     skipConditions;
 
@@ -56,11 +56,11 @@ public class ScenarioItem {
         this.requestBody = requestBody;
     }
 
-    public List<CheckedValue> getCheckedValues() {
+    public List<PathValue> getCheckedValues() {
         return checkedValues;
     }
 
-    public void setCheckedValues(List<CheckedValue> checkedValues) {
+    public void setCheckedValues(List<PathValue> checkedValues) {
         this.checkedValues = checkedValues;
     }
 

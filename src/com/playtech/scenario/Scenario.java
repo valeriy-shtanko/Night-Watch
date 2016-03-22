@@ -169,10 +169,10 @@ public class Scenario {
         return this;
     }
 
-    private CheckedValue processCheckedValue(String line) {
+    private PathValue processCheckedValue(String line) {
         String[] items = StringUtils.split(line, "=");
 
-        return new CheckedValue(items[0].trim(), items[1].trim());
+        return new PathValue(items[0].trim(), items[1].trim());
     }
 
     private ImportedValue processImportedValue(String line){

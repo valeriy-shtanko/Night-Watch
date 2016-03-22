@@ -265,7 +265,7 @@ public class ScenarioProcessor implements Runnable  {
         }
 
         // Process checked values
-        for(CheckedValue item : scenarioItem.getCheckedValues()) {
+        for(PathValue item : scenarioItem.getCheckedValues()) {
             String jsonValue = JsonPath.parse(response).read(item.getPath());
 
             if (!item.getValue().equals(jsonValue)) {
